@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 from ..utils.decorators import admin_required
 from ..models import Movie, Series, User
 from ..extensions import db
@@ -100,3 +100,25 @@ def delete_series(series_id):
     db.session.delete(series); db.session.commit()
     flash(f'Series "{series.name}" deleted.', 'info')
     return redirect(url_for('admin.manage_series'))
+
+# ─── المستخدمين (Users) ───
+@admin_bp.route('/users')
+@login_required
+@admin_required
+def manage_users():
+    users = User.query.order_by(User.created_at.desc()).all()
+    return render_template('admin/manage_users.html', users=users)
+
+@admin_bp.route('/user/delete/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        flash('You cannot delete your own admin account!', 'danger')
+        return redirect(url_for('admin.manage_users'))
+        
+    db.session.delete(user)
+    db.session.commit()
+    flash(f'User "{user.username}" has been deleted.', 'info')
+    return redirect(url_for('admin.manage_users'))

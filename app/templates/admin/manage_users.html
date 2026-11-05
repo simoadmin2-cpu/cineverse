@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Manage Users — Admin{% endblock %}
+{% block content %}
+<div class="container" style="margin-top: 100px; min-height: 80vh;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin: 0; font-size: 1.8rem;">Manage Users</h1>
+    </div>
+    
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for user in users %}
+        <div style="display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; gap: 1rem; align-items: center;">
+            
+            <!-- Avatar -->
+            <div style="flex-shrink: 0;">
+                <div style="width: 50px; height: 50px; border-radius: 8px; background: {% if user.is_admin %}var(--accent){% else %}var(--surface-2){% endif %}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">
+                    {{ user.username[0]|upper }}
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div style="flex: 1; min-width: 0;">
+                <h3 style="margin: 0 0 0.3rem 0; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    {{ user.username }} 
+                    {% if user.is_admin %}<span style="font-size: 0.7rem; background: var(--accent); padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle;">ADMIN</span>{% endif %}
+                </h3>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.3rem;">
+                    <i class="fa-solid fa-envelope"></i> {{ user.email }}
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">
+                    Joined: {{ user.created_at.strftime('%Y-%m-%d') }}
+                </div>
+                
+                <!-- Actions -->
+                {% if user.id != current_user.id %}
+                <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem;">
+                    <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this user? This will remove all their reviews and watchlist items.');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 0.9rem; font-family: inherit; padding: 0;">
+                            <i class="fa-solid fa-user-slash"></i> Ban / Delete
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #46d369;">
+                    <i class="fa-solid fa-shield-halved"></i> This is you
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <p class="muted" style="text-align: center;">No users found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
