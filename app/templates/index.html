@@ -2,15 +2,11 @@
 {% block title %}CineVerse — Home{% endblock %}
 
 {% block content %}
-<!-- Hero Section (Auto-changing) -->
-{% if hero_movies %}
 <section class="hero" id="hero-section">
     {% for movie in hero_movies %}
     <div class="hero-slide {% if loop.first %}active{% endif %}" style="background-image: url('https://image.tmdb.org/t/p/original{{ movie.backdrop_path }}'); position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center top; opacity: {% if loop.first %}1{% else %}0{% endif %}; transition: opacity 1s ease-in-out;"></div>
     {% endfor %}
-    
     <div class="hero-overlay"></div>
-    
     <div class="container hero-content" id="hero-content">
         {% for movie in hero_movies %}
         <div class="hero-info {% if loop.first %}active{% endif %}" style="display: {% if loop.first %}block{% else %}none{% endif %};">
@@ -30,7 +26,6 @@
         {% endfor %}
     </div>
 </section>
-{% endif %}
 
 <!-- Top Rated Row -->
 <section class="movie-row-section container">
@@ -39,6 +34,12 @@
     {% for movie in top_rated %}
     <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="movie-card" style="text-decoration: none; color: inherit;">
       {% if movie.poster_path %}<img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}" loading="lazy">{% endif %}
+      
+      <!-- هنا العلامة ديال الفيلم الكامل -->
+      {% if movie.video_url %}
+      <div style="position: absolute; top: 10px; right: 10px; background: var(--accent); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5);"><i class="fa-solid fa-play"></i> FULL MOVIE</div>
+      {% endif %}
+      
       <div class="card-overlay"><h3>{{ movie.title }}</h3><div class="card-meta"><span class="rating"><i class="fa-solid fa-star"></i> {{ movie.vote_average|round(1) }}</span></div><button class="card-btn"><i class="fa-solid fa-play"></i></button></div>
     </a>
     {% endfor %}
@@ -52,6 +53,11 @@
     {% for movie in recent_movies %}
     <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="movie-card" style="text-decoration: none; color: inherit;">
       {% if movie.poster_path %}<img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}" loading="lazy">{% endif %}
+      
+      {% if movie.video_url %}
+      <div style="position: absolute; top: 10px; right: 10px; background: var(--accent); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5);"><i class="fa-solid fa-play"></i> FULL MOVIE</div>
+      {% endif %}
+      
       <div class="card-overlay"><h3>{{ movie.title }}</h3><div class="card-meta"><span class="rating"><i class="fa-solid fa-star"></i> {{ movie.vote_average|round(1) }}</span></div><button class="card-btn"><i class="fa-solid fa-play"></i></button></div>
     </a>
     {% endfor %}
