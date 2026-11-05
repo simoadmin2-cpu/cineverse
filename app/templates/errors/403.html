@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="text-align: center; margin-top: 150px; min-height: 60vh;">
+    <h1 style="font-size: 6rem; color: #e74c3c; margin-bottom: 0;">403</h1>
+    <h2 style="margin-bottom: 1rem;">Access Forbidden</h2>
+    <p class="muted" style="margin-bottom: 2rem;">You don't have permission to access this page.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Home</a>
+</div>
+{% endblock %}

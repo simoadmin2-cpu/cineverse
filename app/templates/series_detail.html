@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ series.name }} — CineVerse{% endblock %}
+
+{% block content %}
+<div class="detail-hero" style="background-image: url('https://image.tmdb.org/t/p/original{{ series.backdrop_path }}');">
+    <div class="detail-overlay"></div>
+    <div class="container detail-content">
+        <div class="detail-poster">
+            {% if series.poster_path %}
+            <img src="https://image.tmdb.org/t/p/w500{{ series.poster_path }}" alt="{{ series.name }}">
+            {% endif %}
+        </div>
+        <div class="detail-info">
+            <h1>{{ series.name }}</h1>
+            <div class="hero-meta">
+                <span>{{ series.first_air_date.year if series.first_air_date else 'N/A' }}</span>
+                <span class="rating"><i class="fa-solid fa-star"></i> {{ series.vote_average|round(1) }}</span>
+                <span class="badge">TV Series</span>
+            </div>
+            <p class="hero-desc">{{ series.overview }}</p>
+
+            <!-- هنا فين درنا التعديل ديال زر الـ Watchlist -->
+            <div class="detail-actions" style="margin-bottom: 2rem;">
+                <button class="btn btn-primary"><i class="fa-solid fa-play"></i> Watch S1 E1</button>
+                
+                {% if current_user.is_authenticated %}
+                <form action="{{ url_for('main.toggle_series_watchlist', series_id=series.id) }}" method="POST" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-secondary">
+                        {% if in_watchlist %}
+                            <i class="fa-solid fa-check" style="color: #46d369;"></i> In Watchlist
+                        {% else %}
+                            <i class="fa-solid fa-plus"></i> Add to Watchlist
+                        {% endif %}
+                    </button>
+                </form>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-secondary"><i class="fa-solid fa-plus"></i> Add to Watchlist</a>
+                {% endif %}
+            </div>
+
+            <!-- قسم المواسم والحلقات -->
+            <div class="seasons-section">
+                <h3 style="margin-bottom: 1rem; font-size: 1.5rem;">Seasons</h3>
+                {% if series.seasons %}
+                    <div style="display: flex; gap: 1rem; overflow-x: auto;">
+                        {% for season in series.seasons %}
+                        <div style="background: var(--surface); padding: 1rem; border-radius: 8px; min-width: 150px; border: 1px solid var(--border);">
+                            <h4>Season {{ season.season_number }}</h4>
+                            <p class="muted" style="font-size: 0.8rem;">{{ season.episodes|length }} Episodes</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="muted">No seasons available yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

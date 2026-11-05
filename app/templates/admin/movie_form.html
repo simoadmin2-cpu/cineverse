@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Add Movie — Admin{% endblock %}
+
+{% block content %}
+<div class="container form-container" style="max-width: 600px; margin-top: 100px;">
+    <h2>Add New Movie</h2>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group">
+            {{ form.title.label }}
+            {{ form.title(class="form-input") }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.overview.label }}
+            {{ form.overview(class="form-input", rows="4") }}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                {{ form.release_date.label }}
+                {{ form.release_date(class="form-input", type="date") }}
+            </div>
+            <div class="form-group">
+                {{ form.vote_average.label }}
+                {{ form.vote_average(class="form-input", step="0.1") }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form.poster_path.label }}
+            {{ form.poster_path(class="form-input", placeholder="https://...") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.backdrop_path.label }}
+            {{ form.backdrop_path(class="form-input", placeholder="https://...") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.trailer_url.label }}
+            {{ form.trailer_url(class="form-input", placeholder="https://youtube.com/watch?v=...") }}
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem;">
+            {{ form.submit(class="btn btn-primary", style="width: 100%;") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

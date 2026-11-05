@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Movies — CineVerse{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px; min-height: 80vh;">
+    <h1 style="margin-bottom: 2rem;">All Movies</h1>
+    
+    <div class="movie-row" style="flex-wrap: wrap; gap: 1.5rem; overflow: visible;">
+        {% for movie in movies %}
+        <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="movie-card" style="min-width: 200px; width: 200px; height: 300px;">
+            {% if movie.poster_path %}
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+            {% endif %}
+            <div class="card-overlay">
+                <h3>{{ movie.title }}</h3>
+                <div class="card-meta">
+                    <span class="rating"><i class="fa-solid fa-star"></i> {{ movie.vote_average|round(1) }}</span>
+                </div>
+            </div>
+        </a>
+        {% else %}
+        <p class="muted">No movies found.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination (تقسيم الصفحات) -->
+    <div class="pagination">
+        {% if pagination.has_prev %}
+            <a href="{{ url_for('main.movies', page=pagination.prev_num) }}" class="page-btn">&laquo; Prev</a>
+        {% endif %}
+        
+        <span class="page-info">Page {{ pagination.page }} of {{ pagination.pages }}</span>
+        
+        {% if pagination.has_next %}
+            <a href="{{ url_for('main.movies', page=pagination.next_num) }}" class="page-btn">Next &raquo;</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

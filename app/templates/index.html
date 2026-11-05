@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}CineVerse — Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+{% if hero_movie %}
+<section class="hero">
+  <div class="hero-backdrop" style="background-image: url('https://image.tmdb.org/t/p/original{{ hero_movie.backdrop_path }}');"></div>
+  <div class="hero-overlay"></div>
+  <div class="container hero-content">
+    <p class="eyebrow">Trending Now</p>
+    <h1 class="hero-title">{{ hero_movie.title }}</h1>
+    <div class="hero-meta">
+      <span class="match">98% Match</span>
+      <span>{{ hero_movie.release_date.year if hero_movie.release_date else '2023' }}</span>
+      <span class="rating"><i class="fa-solid fa-star"></i> {{ hero_movie.vote_average|round(1) }}</span>
+      <span class="badge">HD</span>
+    </div>
+    <p class="hero-desc">{{ hero_movie.overview[:250] }}...</p>
+    <div class="hero-actions">
+      <a href="{{ url_for('main.movie_detail', movie_id=hero_movie.id) }}" class="btn btn-primary" style="text-decoration: none;">
+        <i class="fa-solid fa-circle-info"></i> View Details
+      </a>
+      <button class="btn btn-secondary"><i class="fa-solid fa-plus"></i> Watchlist</button>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Trending Movies Row -->
+<section class="movie-row-section container">
+  <div class="row-header">
+    <h2 class="row-title">Trending Movies</h2>
+    <div class="row-controls">
+      <button class="scroll-btn prev"><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="scroll-btn next"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+  </div>
+  <div class="movie-row">
+    {% for movie in trending_movies %}
+    <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="movie-card" style="text-decoration: none; color: inherit;">
+      {% if movie.poster_path %}
+      <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}" loading="lazy">
+      {% endif %}
+      <div class="card-overlay">
+        <h3>{{ movie.title }}</h3>
+        <div class="card-meta">
+          <span class="rating"><i class="fa-solid fa-star"></i> {{ movie.vote_average|round(1) }}</span> 
+          <span>{{ movie.release_date.year if movie.release_date else '' }}</span>
+        </div>
+        <button class="card-btn"><i class="fa-solid fa-play"></i></button>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Popular Series Row -->
+<section class="movie-row-section container">
+  <div class="row-header">
+    <h2 class="row-title">Popular Series</h2>
+    <div class="row-controls">
+      <button class="scroll-btn prev"><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="scroll-btn next"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+  </div>
+  <div class="movie-row">
+    {% for series in popular_series %}
+    <a href="{{ url_for('main.series_detail', series_id=series.id) }}" class="movie-card" style="text-decoration: none; color: inherit;">
+      {% if series.poster_path %}
+      <img src="https://image.tmdb.org/t/p/w500{{ series.poster_path }}" alt="{{ series.name }}" loading="lazy">
+      {% endif %}
+      <div class="card-overlay">
+        <h3>{{ series.name }}</h3>
+        <div class="card-meta">
+          <span class="rating"><i class="fa-solid fa-star"></i> {{ series.vote_average|round(1) }}</span> 
+          <span>TV Show</span>
+        </div>
+        <button class="card-btn"><i class="fa-solid fa-play"></i></button>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
