@@ -110,7 +110,7 @@ v.icon-btn { background: none; border: none; color: var(--text); font-size: 1.2r
 
 /v* ─── Movie Rows ─── */
 .site-main { padding-bottom: 4rem; }
-.movie-row-section { margin-top: -50px; position: relative; z-index: 10; margin-bottom: 3rem; }
+.movie-row-section { margin-top: 2rem; position: relative; z-index: 10; margin-bottom: 3rem; }
 .row-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
 .row-title { font-size: 1.5rem; color: #e5e5e5; }
 .row-controls { display: flex; gap: 0.5rem; }
