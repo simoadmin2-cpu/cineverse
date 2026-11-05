@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Manage Series — Admin{% endblock %}
+{% block content %}
+<div class="container" style="margin-top: 100px; min-height: 80vh;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin: 0; font-size: 1.8rem;">Manage Series</h1>
+        <a href="{{ url_for('admin.add_series') }}" class="btn btn-primary" style="padding: 0.6rem 1rem; font-size: 0.9rem;"><i class="fa-solid fa-plus"></i> Add New</a>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for s in series_list %}
+        <div style="display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; gap: 1rem; align-items: center;">
+            <div style="flex-shrink: 0;">
+                {% if s.poster_path %}
+                <img src="https://image.tmdb.org/t/p/w200{{ s.poster_path }}" alt="{{ s.name }}" style="width: 60px; height: 90px; object-fit: cover; border-radius: 6px;">
+                {% else %}
+                <div style="width: 60px; height: 90px; background: #222; border-radius: 6px;"></div>
+                {% endif %}
+            </div>
+            <div style="flex: 1; min-width: 0;">
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ s.name }}</h3>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                    <i class="fa-solid fa-star" style="color: #f5c518;"></i> {{ s.vote_average|round(1) }}
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem;">
+                    <a href="{{ url_for('admin.edit_series', series_id=s.id) }}" style="color: #3498db; text-decoration: none; font-size: 0.9rem;"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+                    <form action="{{ url_for('admin.delete_series', series_id=s.id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Delete this series?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 0.9rem; font-family: inherit; padding: 0;"><i class="fa-solid fa-trash"></i> Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p class="muted" style="text-align: center;">No series found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Admin Dashboard — CineVerse{% endblock %}
-
 {% block content %}
 <div class="container" style="margin-top: 100px; min-height: 80vh;">
     <div class="admin-header">
         <h1>Admin Dashboard</h1>
         <p class="muted">Welcome back, {{ current_user.username }}!</p>
     </div>
-
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon"><i class="fa-solid fa-film"></i></div>
@@ -22,18 +20,12 @@
             <div class="stat-info"><h3>Total Users</h3><p>{{ user_count }}</p></div>
         </div>
     </div>
-
     <h2 style="margin-top: 3rem; margin-bottom: 1.5rem;">Quick Actions</h2>
-    <div class="actions-grid">
-        <a href="{{ url_for('admin.add_movie') }}" class="action-btn">
-            <i class="fa-solid fa-plus"></i> Add New Movie
-        </a>
-        <a href="{{ url_for('admin.manage_movies') }}" class="action-btn">
-            <i class="fa-solid fa-list"></i> Manage Movies
-        </a>
-        <a href="#" class="action-btn">
-            <i class="fa-solid fa-plus"></i> Add New Series
-        </a>
+    <div class="actions-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <a href="{{ url_for('admin.add_movie') }}" class="action-btn"><i class="fa-solid fa-plus"></i> Add Movie</a>
+        <a href="{{ url_for('admin.manage_movies') }}" class="action-btn"><i class="fa-solid fa-list"></i> Manage Movies</a>
+        <a href="{{ url_for('admin.add_series') }}" class="action-btn"><i class="fa-solid fa-plus"></i> Add Series</a>
+        <a href="{{ url_for('admin.manage_series') }}" class="action-btn"><i class="fa-solid fa-list"></i> Manage Series</a>
     </div>
 </div>
 {% endblock %}
