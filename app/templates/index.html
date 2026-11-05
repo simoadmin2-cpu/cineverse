@@ -2,82 +2,70 @@
 {% block title %}CineVerse — Home{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-{% if hero_movie %}
-<section class="hero">
-  <div class="hero-backdrop" style="background-image: url('https://image.tmdb.org/t/p/original{{ hero_movie.backdrop_path }}');"></div>
-  <div class="hero-overlay"></div>
-  <div class="container hero-content">
-    <p class="eyebrow">Trending Now</p>
-    <h1 class="hero-title">{{ hero_movie.title }}</h1>
-    <div class="hero-meta">
-      <span class="match">98% Match</span>
-      <span>{{ hero_movie.release_date.year if hero_movie.release_date else '2023' }}</span>
-      <span class="rating"><i class="fa-solid fa-star"></i> {{ hero_movie.vote_average|round(1) }}</span>
-      <span class="badge">HD</span>
+<!-- Hero Section (Auto-changing) -->
+{% if hero_movies %}
+<section class="hero" id="hero-section">
+    {% for movie in hero_movies %}
+    <div class="hero-slide {% if loop.first %}active{% endif %}" style="background-image: url('https://image.tmdb.org/t/p/original{{ movie.backdrop_path }}'); position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center top; opacity: {% if loop.first %}1{% else %}0{% endif %}; transition: opacity 1s ease-in-out;"></div>
+    {% endfor %}
+    
+    <div class="hero-overlay"></div>
+    
+    <div class="container hero-content" id="hero-content">
+        {% for movie in hero_movies %}
+        <div class="hero-info {% if loop.first %}active{% endif %}" style="display: {% if loop.first %}block{% else %}none{% endif %};">
+            <p class="eyebrow">Trending Now</p>
+            <h1 class="hero-title">{{ movie.title }}</h1>
+            <div class="hero-meta">
+                <span class="match">98% Match</span>
+                <span>{{ movie.release_date.year if movie.release_date else '2024' }}</span>
+                <span class="rating"><i class="fa-solid fa-star"></i> {{ movie.vote_average|round(1) }}</span>
+                <span class="badge">HD</span>
+            </div>
+            <p class="hero-desc">{{ movie.overview[:200] if movie.overview else '' }}...</p>
+            <div class="hero-actions">
+                <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="btn btn-primary" style="text-decoration: none;"><i class="fa-solid fa-circle-info"></i> View Details</a>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-    <p class="hero-desc">{{ hero_movie.overview[:250] }}...</p>
-    <div class="hero-actions">
-      <a href="{{ url_for('main.movie_detail', movie_id=hero_movie.id) }}" class="btn btn-primary" style="text-decoration: none;">
-        <i class="fa-solid fa-circle-info"></i> View Details
-      </a>
-      <button class="btn btn-secondary"><i class="fa-solid fa-plus"></i> Watchlist</button>
-    </div>
-  </div>
 </section>
 {% endif %}
 
-<!-- Trending Movies Row -->
+<!-- Top Rated Row -->
 <section class="movie-row-section container">
-  <div class="row-header">
-    <h2 class="row-title">Trending Movies</h2>
-    <div class="row-controls">
-      <button class="scroll-btn prev"><i class="fa-solid fa-chevron-left"></i></button>
-      <button class="scroll-btn next"><i class="fa-solid fa-chevron-right"></i></button>
-    </div>
-  </div>
+  <div class="row-header"><h2 class="row-title">Top Rated</h2></div>
   <div class="movie-row">
-    {% for movie in trending_movies %}
+    {% for movie in top_rated %}
     <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="movie-card" style="text-decoration: none; color: inherit;">
-      {% if movie.poster_path %}
-      <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}" loading="lazy">
-      {% endif %}
-      <div class="card-overlay">
-        <h3>{{ movie.title }}</h3>
-        <div class="card-meta">
-          <span class="rating"><i class="fa-solid fa-star"></i> {{ movie.vote_average|round(1) }}</span> 
-          <span>{{ movie.release_date.year if movie.release_date else '' }}</span>
-        </div>
-        <button class="card-btn"><i class="fa-solid fa-play"></i></button>
-      </div>
+      {% if movie.poster_path %}<img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}" loading="lazy">{% endif %}
+      <div class="card-overlay"><h3>{{ movie.title }}</h3><div class="card-meta"><span class="rating"><i class="fa-solid fa-star"></i> {{ movie.vote_average|round(1) }}</span></div><button class="card-btn"><i class="fa-solid fa-play"></i></button></div>
     </a>
     {% endfor %}
   </div>
 </section>
 
-<!-- Popular Series Row -->
+<!-- Recently Added Movies -->
 <section class="movie-row-section container">
-  <div class="row-header">
-    <h2 class="row-title">Popular Series</h2>
-    <div class="row-controls">
-      <button class="scroll-btn prev"><i class="fa-solid fa-chevron-left"></i></button>
-      <button class="scroll-btn next"><i class="fa-solid fa-chevron-right"></i></button>
-    </div>
-  </div>
+  <div class="row-header"><h2 class="row-title">Recently Added Movies</h2></div>
   <div class="movie-row">
-    {% for series in popular_series %}
-    <a href="{{ url_for('main.series_detail', series_id=series.id) }}" class="movie-card" style="text-decoration: none; color: inherit;">
-      {% if series.poster_path %}
-      <img src="https://image.tmdb.org/t/p/w500{{ series.poster_path }}" alt="{{ series.name }}" loading="lazy">
-      {% endif %}
-      <div class="card-overlay">
-        <h3>{{ series.name }}</h3>
-        <div class="card-meta">
-          <span class="rating"><i class="fa-solid fa-star"></i> {{ series.vote_average|round(1) }}</span> 
-          <span>TV Show</span>
-        </div>
-        <button class="card-btn"><i class="fa-solid fa-play"></i></button>
-      </div>
+    {% for movie in recent_movies %}
+    <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="movie-card" style="text-decoration: none; color: inherit;">
+      {% if movie.poster_path %}<img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}" loading="lazy">{% endif %}
+      <div class="card-overlay"><h3>{{ movie.title }}</h3><div class="card-meta"><span class="rating"><i class="fa-solid fa-star"></i> {{ movie.vote_average|round(1) }}</span></div><button class="card-btn"><i class="fa-solid fa-play"></i></button></div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Recently Added Series -->
+<section class="movie-row-section container">
+  <div class="row-header"><h2 class="row-title">Recently Added Series</h2></div>
+  <div class="movie-row">
+    {% for s in recent_series %}
+    <a href="{{ url_for('main.series_detail', series_id=s.id) }}" class="movie-card" style="text-decoration: none; color: inherit;">
+      {% if s.poster_path %}<img src="https://image.tmdb.org/t/p/w500{{ s.poster_path }}" alt="{{ s.name }}" loading="lazy">{% endif %}
+      <div class="card-overlay"><h3>{{ s.name }}</h3><div class="card-meta"><span class="rating"><i class="fa-solid fa-star"></i> {{ s.vote_average|round(1) }}</span></div><button class="card-btn"><i class="fa-solid fa-play"></i></button></div>
     </a>
     {% endfor %}
   </div>

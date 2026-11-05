@@ -8,10 +8,22 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/")
 def index():
+    # الهيرو: نجيبو 5 ديال الأفلام الأعلى تقييماً باش يتبدلو
+    hero_movies = Movie.query.filter(Movie.backdrop_path != None).order_by(Movie.vote_average.desc()).limit(5).all()
+    
+    # الصفوف
     trending_movies = Movie.query.order_by(Movie.vote_average.desc()).limit(10).all()
-    popular_series = Series.query.order_by(Series.vote_average.desc()).limit(10).all()
-    hero_movie = trending_movies[0] if trending_movies else None
-    return render_template("index.html", trending_movies=trending_movies, popular_series=popular_series, hero_movie=hero_movie)
+    top_rated = Movie.query.order_by(Movie.vote_average.desc()).limit(10).all()
+    recent_movies = Movie.query.order_by(Movie.created_at.desc()).limit(10).all()
+    recent_series = Series.query.order_by(Series.created_at.desc()).limit(10).all()
+    
+    return render_template("index.html", 
+        hero_movies=hero_movies, 
+        trending_movies=trending_movies, 
+        top_rated=top_rated,
+        recent_movies=recent_movies,
+        recent_series=recent_series
+    )
 
 @main_bp.route("/movies")
 def movies():
@@ -48,17 +60,14 @@ def movie_detail(movie_id):
     movie = Movie.query.get_or_404(movie_id)
     in_watchlist = WatchlistItem.query.filter_by(user_id=current_user.id, movie_id=movie.id).first() is not None if current_user.is_authenticated else False
     form = ReviewForm()
-    
     if form.validate_on_submit():
         if not current_user.is_authenticated:
             flash('You must be logged in to review.', 'warning')
             return redirect(url_for('auth.login'))
         review = Review(content=form.content.data, rating=int(form.rating.data), user_id=current_user.id, movie_id=movie.id)
-        db.session.add(review)
-        db.session.commit()
+        db.session.add(review); db.session.commit()
         flash('Your review has been added!', 'success')
         return redirect(url_for('main.movie_detail', movie_id=movie.id))
-
     return render_template("movie_detail.html", movie=movie, in_watchlist=in_watchlist, form=form)
 
 @main_bp.route("/series/<int:series_id>", methods=['GET', 'POST'])
@@ -66,17 +75,14 @@ def series_detail(series_id):
     series = Series.query.get_or_404(series_id)
     in_watchlist = WatchlistItem.query.filter_by(user_id=current_user.id, series_id=series.id).first() is not None if current_user.is_authenticated else False
     form = ReviewForm()
-    
     if form.validate_on_submit():
         if not current_user.is_authenticated:
             flash('You must be logged in to review.', 'warning')
             return redirect(url_for('auth.login'))
         review = Review(content=form.content.data, rating=int(form.rating.data), user_id=current_user.id, series_id=series.id)
-        db.session.add(review)
-        db.session.commit()
+        db.session.add(review); db.session.commit()
         flash('Your review has been added!', 'success')
         return redirect(url_for('main.series_detail', series_id=series.id))
-
     return render_template("series_detail.html", series=series, in_watchlist=in_watchlist, form=form)
 
 @main_bp.route("/series/<int:series_id>/season/<int:season_number>")
