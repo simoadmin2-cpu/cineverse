@@ -1,5 +1,6 @@
 import os
 import click
+import random
 from flask import Flask, render_template
 from config import Config
 from .extensions import db, migrate, login_manager, csrf
@@ -150,7 +151,6 @@ def create_app(config_class=Config):
         from .models import Movie, Series
         from datetime import datetime
         import time
-
         click.echo("🚀 Starting massive data fetch... (This will take a few minutes)")
         
         def parse_date(date_str):
@@ -161,35 +161,52 @@ def create_app(config_class=Config):
         for p in range(1, 11):
             click.echo(f"Fetching Movies Page {p}/10...")
             movies = get_popular_movies(p) + get_top_rated_movies(p)
-            added = 0
             for m in movies:
                 if not Movie.query.filter_by(tmdb_id=m['id']).first():
-                    db.session.add(Movie(
-                        tmdb_id=m['id'], slug=f"movie-{m['id']}", title=m.get('title', ''),
-                        overview=m.get('overview', ''), poster_path=m.get('poster_path'),
-                        backdrop_path=m.get('backdrop_path'), release_date=parse_date(m.get('release_date')),
-                        vote_average=m.get('vote_average', 0.0), vote_count=m.get('vote_count', 0)
-                    ))
-                    added += 1
+                    db.session.add(Movie(tmdb_id=m['id'], slug=f"movie-{m['id']}", title=m.get('title', ''), overview=m.get('overview', ''), poster_path=m.get('poster_path'), backdrop_path=m.get('backdrop_path'), release_date=parse_date(m.get('release_date')), vote_average=m.get('vote_average', 0.0), vote_count=m.get('vote_count', 0)))
             db.session.commit()
             time.sleep(1)
 
         for p in range(1, 11):
             click.echo(f"Fetching Series Page {p}/10...")
             series = get_popular_series(p) + get_top_rated_series(p)
-            added = 0
             for s in series:
                 if not Series.query.filter_by(tmdb_id=s['id']).first():
-                    db.session.add(Series(
-                        tmdb_id=s['id'], slug=f"series-{s['id']}", name=s.get('name', ''),
-                        overview=s.get('overview', ''), poster_path=s.get('poster_path'),
-                        backdrop_path=s.get('backdrop_path'), first_air_date=parse_date(s.get('first_air_date')),
-                        vote_average=s.get('vote_average', 0.0), vote_count=s.get('vote_count', 0)
-                    ))
-                    added += 1
+                    db.session.add(Series(tmdb_id=s['id'], slug=f"series-{s['id']}", name=s.get('name', ''), overview=s.get('overview', ''), poster_path=s.get('poster_path'), backdrop_path=s.get('backdrop_path'), first_air_date=parse_date(s.get('first_air_date')), vote_average=s.get('vote_average', 0.0), vote_count=s.get('vote_count', 0)))
             db.session.commit()
             time.sleep(1)
+        click.echo("✅ Massive fetch complete!")
 
-        click.echo("✅ Massive fetch complete! Run 'link-genres' next to connect them to genres.")
+    @app.cli.command("mass-public-domain")
+    def mass_public_domain():
+        from .services.archive import get_public_domain_movies
+        from .models import Movie
+        from datetime import datetime
+        click.echo("🚀 Fetching Public Domain movies from Archive.org...")
+        
+        movies = get_public_domain_movies(limit=30)
+        added = 0
+        for m in movies:
+            if not Movie.query.filter_by(title=m['title']).first():
+                random_poster = random.choice([
+                    "/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg",
+                    "/pFlaoHTZeyNkG83vxsAJiGzfSsa.jpg",
+                    "/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg"
+                ])
+                
+                new_movie = Movie(
+                    tmdb_id=random.randint(1000000, 9999999),
+                    slug=f"pd-{random.randint(1000, 9999)}",
+                    title=m['title'],
+                    overview=m['description'][:500],
+                    poster_path=random_poster,
+                    backdrop_path=random_poster,
+                    vote_average=round(random.uniform(6.0, 9.0), 1),
+                    video_url=m['video_url']
+                )
+                db.session.add(new_movie)
+                added += 1
+        db.session.commit()
+        click.echo(f"✅ Added {added} Public Domain movies with full videos!")
 
     return app
