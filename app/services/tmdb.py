@@ -8,11 +8,8 @@ def get_trending_movies():
     url = f"{base_url}/trending/movie/week?api_key={api_key}&language=en-US"
     try:
         response = requests.get(url, timeout=10)
-        response.raise_for_status()
         return response.json().get("results", [])
-    except Exception as e:
-        print(f"Error fetching movies: {e}")
-        return []
+    except: return []
 
 def get_popular_series():
     api_key = current_app.config.get("TMDB_API_KEY")
@@ -21,11 +18,8 @@ def get_popular_series():
     url = f"{base_url}/tv/popular?api_key={api_key}&language=en-US"
     try:
         response = requests.get(url, timeout=10)
-        response.raise_for_status()
         return response.json().get("results", [])
-    except Exception as e:
-        print(f"Error fetching series: {e}")
-        return []
+    except: return []
 
 def get_series_details(tmdb_id):
     api_key = current_app.config.get("TMDB_API_KEY")
@@ -34,12 +28,9 @@ def get_series_details(tmdb_id):
     url = f"{base_url}/tv/{tmdb_id}?api_key={api_key}&language=en-US"
     try:
         response = requests.get(url, timeout=10)
-        response.raise_for_status()
         return response.json()
-    except Exception as e:
-        return None
+    except: return None
 
-# ─── دالة جديدة باش نجيبو الأنواع (Genres) ───
 def get_genres():
     api_key = current_app.config.get("TMDB_API_KEY")
     base_url = current_app.config.get("TMDB_BASE_URL")
@@ -47,8 +38,22 @@ def get_genres():
     url = f"{base_url}/genre/movie/list?api_key={api_key}&language=en-US"
     try:
         response = requests.get(url, timeout=10)
-        response.raise_for_status()
         return response.json().get("genres", [])
-    except Exception as e:
-        print(f"Error fetching genres: {e}")
-        return []
+    except: return []
+
+# ─── دوال جديدة باش نجيبو تفاصيل الأفلام والمسلسلات (فيها الأنواع) ───
+def get_movie_details(tmdb_id):
+    api_key = current_app.config.get("TMDB_API_KEY")
+    base_url = current_app.config.get("TMDB_BASE_URL")
+    url = f"{base_url}/movie/{tmdb_id}?api_key={api_key}&language=en-US"
+    try:
+        return requests.get(url, timeout=10).json()
+    except: return None
+
+def get_tv_details(tmdb_id):
+    api_key = current_app.config.get("TMDB_API_KEY")
+    base_url = current_app.config.get("TMDB_BASE_URL")
+    url = f"{base_url}/tv/{tmdb_id}?api_key={api_key}&language=en-US"
+    try:
+        return requests.get(url, timeout=10).json()
+    except: return None
