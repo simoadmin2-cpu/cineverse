@@ -29,12 +29,6 @@ class MovieForm(FlaskForm):
     trailer_url = StringField('Trailer URL', validators=[Optional()])
     submit = SubmitField('Save Movie')
 
-class ReviewForm(FlaskForm):
-    rating = SelectField('Rating', choices=[(str(i), f'{i}/10') for i in range(1, 11)], validators=[DataRequired()])
-    content = TextAreaField('Your Review', validators=[DataRequired(), Length(min=5, max=1000)])
-    submit = SubmitField('Submit Review')
-
-# ─── فورم المسلسلات ───
 class SeriesForm(FlaskForm):
     name = StringField('Series Name', validators=[DataRequired()])
     overview = TextAreaField('Overview', validators=[DataRequired()])
@@ -44,3 +38,15 @@ class SeriesForm(FlaskForm):
     vote_average = FloatField('Rating (0-10)', validators=[Optional(), NumberRange(min=0, max=10)])
     trailer_url = StringField('Trailer URL', validators=[Optional()])
     submit = SubmitField('Save Series')
+
+class ReviewForm(FlaskForm):
+    rating = SelectField('Rating', choices=[(str(i), f'{i}/10') for i in range(1, 11)], validators=[DataRequired()])
+    content = TextAreaField('Your Review', validators=[DataRequired(), Length(min=5, max=1000)])
+    submit = SubmitField('Submit Review')
+
+# ─── فورم تبديل الباسورد ───
+class UpdatePasswordForm(FlaskForm):
+    old_password = PasswordField('Current Password', validators=[DataRequired()])
+    new_password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
+    confirm_new_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('new_password')])
+    submit = SubmitField('Update Password')

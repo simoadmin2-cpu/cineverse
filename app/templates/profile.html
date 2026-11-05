@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}My Profile — CineVerse{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px; min-height: 80vh;">
+    
+    <!-- Header -->
+    <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 3rem; background: var(--surface); padding: 2rem; border-radius: 12px; border: 1px solid var(--border);">
+        <div style="width: 80px; height: 80px; border-radius: 12px; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold;">
+            {{ current_user.username[0]|upper }}
+        </div>
+        <div>
+            <h1 style="margin-bottom: 0.5rem;">{{ current_user.username }}</h1>
+            <p class="muted" style="margin: 0;"><i class="fa-solid fa-envelope"></i> {{ current_user.email }}</p>
+            <p class="muted" style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">Member since {{ current_user.created_at.strftime('%B %Y') }}</p>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
+        
+        <!-- Change Password Section -->
+        <div style="background: var(--surface); padding: 2rem; border-radius: 12px; border: 1px solid var(--border);">
+            <h3 style="margin-bottom: 1.5rem;">Change Password</h3>
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.old_password.label }}
+                    {{ form.old_password(class="form-input") }}
+                </div>
+                <div class="form-group">
+                    {{ form.new_password.label }}
+                    {{ form.new_password(class="form-input") }}
+                </div>
+                <div class="form-group">
+                    {{ form.confirm_new_password.label }}
+                    {{ form.confirm_new_password(class="form-input") }}
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+
+        <!-- My Reviews Section -->
+        <div style="background: var(--surface); padding: 2rem; border-radius: 12px; border: 1px solid var(--border);">
+            <h3 style="margin-bottom: 1.5rem;">My Reviews ({{ reviews|length }})</h3>
+            {% if reviews %}
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for review in reviews %}
+                    <div style="background: var(--bg); padding: 1rem; border-radius: 8px; border: 1px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            {% if review.movie %}
+                                <a href="{{ url_for('main.movie_detail', movie_id=review.movie.id) }}" style="color: var(--text); font-weight: bold; text-decoration: none;">
+                                    🎬 {{ review.movie.title }}
+                                </a>
+                            {% elif review.series %}
+                                <a href="{{ url_for('main.series_detail', series_id=review.series.id) }}" style="color: var(--text); font-weight: bold; text-decoration: none;">
+                                    📺 {{ review.series.name }}
+                                </a>
+                            {% endif %}
+                            <span style="color: #f5c518;"><i class="fa-solid fa-star"></i> {{ review.rating }}/10</span>
+                        </div>
+                        <p style="margin: 0; font-size: 0.95rem;">{{ review.content }}</p>
+                        <small class="muted" style="display: block; margin-top: 0.5rem;">{{ review.created_at.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="muted">You haven't written any reviews yet.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
