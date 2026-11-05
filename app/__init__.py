@@ -102,14 +102,12 @@ def create_app(config_class=Config):
         db.session.commit()
         click.echo("✅ Genres linked.")
 
-    # ─── الأمر الجديد ديال الحلقات ───
     @app.cli.command("seed-episodes")
     def seed_episodes():
         from .services.tmdb import get_season_episodes
         from .models import Series, Season, Episode
         from datetime import datetime
         click.echo("⏳ Fetching episodes...")
-        
         seasons = Season.query.all()
         added_eps = 0
         for season in seasons:
@@ -131,5 +129,27 @@ def create_app(config_class=Config):
                             added_eps += 1
         db.session.commit()
         click.echo(f"✅ Added {added_eps} episodes.")
+
+    # ─── الأمر الجديد ديال التريلرات ───
+    @app.cli.command("seed-trailers")
+    def seed_trailers():
+        from .services.tmdb import get_movie_trailer, get_tv_trailer
+        from .models import Movie, Series
+        click.echo("⏳ Fetching trailers...")
+        
+        added_m = 0
+        for m in Movie.query.filter(Movie.trailer_url == None).all():
+            if m.tmdb_id:
+                trailer = get_movie_trailer(m.tmdb_id)
+                if trailer: m.trailer_url = trailer; added_m += 1
+        
+        added_s = 0
+        for s in Series.query.filter(Series.trailer_url == None).all():
+            if s.tmdb_id:
+                trailer = get_tv_trailer(s.tmdb_id)
+                if trailer: s.trailer_url = trailer; added_s += 1
+                
+        db.session.commit()
+        click.echo(f"✅ Added {added_m} movie trailers and {added_s} series trailers.")
 
     return app
