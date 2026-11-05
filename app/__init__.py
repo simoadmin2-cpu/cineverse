@@ -121,35 +121,75 @@ def create_app(config_class=Config):
                             if ep.get('air_date'):
                                 try: air_date = datetime.strptime(ep['air_date'], '%Y-%m-%d').date()
                                 except: pass
-                            db.session.add(Episode(
-                                season_id=season.id, episode_number=ep['episode_number'],
-                                name=ep.get('name', ''), overview=ep.get('overview', ''),
-                                still_path=ep.get('still_path'), air_date=air_date, runtime=ep.get('runtime')
-                            ))
+                            db.session.add(Episode(season_id=season.id, episode_number=ep['episode_number'], name=ep.get('name', ''), overview=ep.get('overview', ''), still_path=ep.get('still_path'), air_date=air_date, runtime=ep.get('runtime')))
                             added_eps += 1
         db.session.commit()
         click.echo(f"✅ Added {added_eps} episodes.")
 
-    # ─── الأمر الجديد ديال التريلرات ───
     @app.cli.command("seed-trailers")
     def seed_trailers():
         from .services.tmdb import get_movie_trailer, get_tv_trailer
         from .models import Movie, Series
         click.echo("⏳ Fetching trailers...")
-        
         added_m = 0
         for m in Movie.query.filter(Movie.trailer_url == None).all():
             if m.tmdb_id:
                 trailer = get_movie_trailer(m.tmdb_id)
                 if trailer: m.trailer_url = trailer; added_m += 1
-        
         added_s = 0
         for s in Series.query.filter(Series.trailer_url == None).all():
             if s.tmdb_id:
                 trailer = get_tv_trailer(s.tmdb_id)
                 if trailer: s.trailer_url = trailer; added_s += 1
-                
         db.session.commit()
         click.echo(f"✅ Added {added_m} movie trailers and {added_s} series trailers.")
+
+    @app.cli.command("mass-seed")
+    def mass_seed():
+        from .services.tmdb import get_popular_movies, get_top_rated_movies, get_popular_series, get_top_rated_series
+        from .models import Movie, Series
+        from datetime import datetime
+        import time
+
+        click.echo("🚀 Starting massive data fetch... (This will take a few minutes)")
+        
+        def parse_date(date_str):
+            if not date_str: return None
+            try: return datetime.strptime(date_str, '%Y-%m-%d').date()
+            except: return None
+
+        for p in range(1, 11):
+            click.echo(f"Fetching Movies Page {p}/10...")
+            movies = get_popular_movies(p) + get_top_rated_movies(p)
+            added = 0
+            for m in movies:
+                if not Movie.query.filter_by(tmdb_id=m['id']).first():
+                    db.session.add(Movie(
+                        tmdb_id=m['id'], slug=f"movie-{m['id']}", title=m.get('title', ''),
+                        overview=m.get('overview', ''), poster_path=m.get('poster_path'),
+                        backdrop_path=m.get('backdrop_path'), release_date=parse_date(m.get('release_date')),
+                        vote_average=m.get('vote_average', 0.0), vote_count=m.get('vote_count', 0)
+                    ))
+                    added += 1
+            db.session.commit()
+            time.sleep(1)
+
+        for p in range(1, 11):
+            click.echo(f"Fetching Series Page {p}/10...")
+            series = get_popular_series(p) + get_top_rated_series(p)
+            added = 0
+            for s in series:
+                if not Series.query.filter_by(tmdb_id=s['id']).first():
+                    db.session.add(Series(
+                        tmdb_id=s['id'], slug=f"series-{s['id']}", name=s.get('name', ''),
+                        overview=s.get('overview', ''), poster_path=s.get('poster_path'),
+                        backdrop_path=s.get('backdrop_path'), first_air_date=parse_date(s.get('first_air_date')),
+                        vote_average=s.get('vote_average', 0.0), vote_count=s.get('vote_count', 0)
+                    ))
+                    added += 1
+            db.session.commit()
+            time.sleep(1)
+
+        click.echo("✅ Massive fetch complete! Run 'link-genres' next to connect them to genres.")
 
     return app
