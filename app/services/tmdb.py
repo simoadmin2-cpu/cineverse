@@ -27,7 +27,6 @@ def get_popular_series():
         print(f"Error fetching series: {e}")
         return []
 
-# ─── دالة جديدة باش نجيبو المواسم ───
 def get_series_details(tmdb_id):
     api_key = current_app.config.get("TMDB_API_KEY")
     base_url = current_app.config.get("TMDB_BASE_URL")
@@ -38,5 +37,18 @@ def get_series_details(tmdb_id):
         response.raise_for_status()
         return response.json()
     except Exception as e:
-        print(f"Error fetching series details: {e}")
         return None
+
+# ─── دالة جديدة باش نجيبو الأنواع (Genres) ───
+def get_genres():
+    api_key = current_app.config.get("TMDB_API_KEY")
+    base_url = current_app.config.get("TMDB_BASE_URL")
+    if not api_key: return []
+    url = f"{base_url}/genre/movie/list?api_key={api_key}&language=en-US"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return response.json().get("genres", [])
+    except Exception as e:
+        print(f"Error fetching genres: {e}")
+        return []
