@@ -3,46 +3,57 @@
 
 {% block content %}
 <div class="container" style="margin-top: 100px; min-height: 80vh;">
-    <h1 style="margin-bottom: 2rem;">Search Results for "{{ query }}"</h1>
+    <h1 style="margin-bottom: 2rem; font-size: 1.8rem;">Search Results for "{{ query }}"</h1>
     
     {% if not movies and not series %}
         <div style="text-align: center; padding: 4rem 0; color: var(--text-muted);">
-            <i class="fa-solid fa-magnifying-glass" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+            <i class="fa-solid fa-magnifying-glass" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5;"></i>
             <h2>No results found</h2>
-            <p>Try searching for a different movie or series.</p>
+            <p style="margin-top: 1rem;">We couldn't find anything matching "{{ query }}".</p>
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary" style="margin-top: 1.5rem;">Back to Home</a>
         </div>
     {% else %}
+        
+        <!-- Movies Results -->
         {% if movies %}
-        <h2 style="margin-bottom: 1rem; font-size: 1.5rem;">Movies</h2>
-        <div class="movie-row" style="flex-wrap: wrap; gap: 1.5rem; overflow: visible; margin-bottom: 3rem;">
+        <h2 style="margin-bottom: 1rem; font-size: 1.5rem; color: var(--text-muted);">Movies</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 3rem;">
             {% for movie in movies %}
-            <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="movie-card" style="min-width: 200px; width: 200px; height: 300px;">
+            <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="movie-card" style="width: 100%; height: 210px; text-decoration: none; color: inherit; border-radius: 8px; overflow: hidden; position: relative;">
                 {% if movie.poster_path %}
-                <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+                <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}" style="width: 100%; height: 100%; object-fit: cover;">
                 {% endif %}
-                <div class="card-overlay">
-                    <h3>{{ movie.title }}</h3>
+                <div class="card-overlay" style="padding: 0.8rem;">
+                    <h3 style="font-size: 0.9rem; margin-bottom: 0.2rem;">{{ movie.title }}</h3>
+                    <div class="card-meta">
+                        <span class="rating" style="font-size: 0.75rem;"><i class="fa-solid fa-star"></i> {{ movie.vote_average|round(1) }}</span>
+                    </div>
                 </div>
             </a>
             {% endfor %}
         </div>
         {% endif %}
 
+        <!-- Series Results -->
         {% if series %}
-        <h2 style="margin-bottom: 1rem; font-size: 1.5rem;">Series</h2>
-        <div class="movie-row" style="flex-wrap: wrap; gap: 1.5rem; overflow: visible;">
+        <h2 style="margin-bottom: 1rem; font-size: 1.5rem; color: var(--text-muted);">Series</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem;">
             {% for s in series %}
-            <div class="movie-card" style="min-width: 200px; width: 200px; height: 300px;">
+            <a href="{{ url_for('main.series_detail', series_id=s.id) }}" class="movie-card" style="width: 100%; height: 210px; text-decoration: none; color: inherit; border-radius: 8px; overflow: hidden; position: relative;">
                 {% if s.poster_path %}
-                <img src="https://image.tmdb.org/t/p/w500{{ s.poster_path }}" alt="{{ s.name }}">
+                <img src="https://image.tmdb.org/t/p/w500{{ s.poster_path }}" alt="{{ s.name }}" style="width: 100%; height: 100%; object-fit: cover;">
                 {% endif %}
-                <div class="card-overlay">
-                    <h3>{{ s.name }}</h3>
+                <div class="card-overlay" style="padding: 0.8rem;">
+                    <h3 style="font-size: 0.9rem; margin-bottom: 0.2rem;">{{ s.name }}</h3>
+                    <div class="card-meta">
+                        <span class="rating" style="font-size: 0.75rem;"><i class="fa-solid fa-star"></i> {{ s.vote_average|round(1) }}</span>
+                    </div>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
         {% endif %}
+
     {% endif %}
 </div>
 {% endblock %}
