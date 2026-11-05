@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_required
-from ..models import Movie, Series, WatchlistItem, Genre, Season, Review
+from ..models import Movie, Series, WatchlistItem, Genre, Season, Episode, Review
 from ..extensions import db
 from ..forms import ReviewForm
 
@@ -8,22 +8,12 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/")
 def index():
-    # الهيرو: نجيبو 5 ديال الأفلام الأعلى تقييماً باش يتبدلو
     hero_movies = Movie.query.filter(Movie.backdrop_path != None).order_by(Movie.vote_average.desc()).limit(5).all()
-    
-    # الصفوف
     trending_movies = Movie.query.order_by(Movie.vote_average.desc()).limit(10).all()
     top_rated = Movie.query.order_by(Movie.vote_average.desc()).limit(10).all()
     recent_movies = Movie.query.order_by(Movie.created_at.desc()).limit(10).all()
     recent_series = Series.query.order_by(Series.created_at.desc()).limit(10).all()
-    
-    return render_template("index.html", 
-        hero_movies=hero_movies, 
-        trending_movies=trending_movies, 
-        top_rated=top_rated,
-        recent_movies=recent_movies,
-        recent_series=recent_series
-    )
+    return render_template("index.html", hero_movies=hero_movies, trending_movies=trending_movies, top_rated=top_rated, recent_movies=recent_movies, recent_series=recent_series)
 
 @main_bp.route("/movies")
 def movies():
@@ -91,6 +81,16 @@ def season_detail(series_id, season_number):
     season = Season.query.filter_by(series_id=series.id, season_number=season_number).first_or_404()
     return render_template("season_detail.html", series=series, season=season)
 
+@main_bp.route("/watch/movie/<int:movie_id>")
+def watch_movie(movie_id):
+    movie = Movie.query.get_or_404(movie_id)
+    return render_template("watch.html", title=movie.title, video_url=movie.video_url, trailer_url=movie.trailer_url)
+
+@main_bp.route("/watch/episode/<int:episode_id>")
+def watch_episode(episode_id):
+    episode = Episode.query.get_or_404(episode_id)
+    return render_template("watch.html", title=episode.name, video_url=episode.video_url, trailer_url=None)
+
 @main_bp.route("/watchlist")
 @login_required
 def watchlist():
@@ -119,3 +119,11 @@ def toggle_series_watchlist(series_id):
         db.session.add(WatchlistItem(user_id=current_user.id, series_id=series.id)); flash(f'Added "{series.name}"!', 'success')
     db.session.commit()
     return redirect(request.referrer or url_for('main.index'))
+
+@main_bp.route("/terms")
+def terms():
+    return render_template("terms.html")
+
+@main_bp.route("/privacy")
+def privacy():
+    return render_template("privacy.html")

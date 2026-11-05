@@ -26,7 +26,8 @@ class MovieForm(FlaskForm):
     backdrop_path = StringField('Backdrop URL', validators=[Optional()])
     release_date = DateField('Release Date', format='%Y-%m-%d', validators=[Optional()])
     vote_average = FloatField('Rating (0-10)', validators=[Optional(), NumberRange(min=0, max=10)])
-    trailer_url = StringField('Trailer URL', validators=[Optional()])
+    trailer_url = StringField('Trailer URL (YouTube)', validators=[Optional()])
+    video_url = StringField('Full Movie Video URL (Direct MP4 - Legal only)', validators=[Optional()])
     submit = SubmitField('Save Movie')
 
 class SeriesForm(FlaskForm):
@@ -44,7 +45,6 @@ class ReviewForm(FlaskForm):
     content = TextAreaField('Your Review', validators=[DataRequired(), Length(min=5, max=1000)])
     submit = SubmitField('Submit Review')
 
-# ─── فورم تبديل الباسورد ───
 class UpdatePasswordForm(FlaskForm):
     old_password = PasswordField('Current Password', validators=[DataRequired()])
     new_password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
