@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_required
-from ..models import Movie, Series, WatchlistItem
+from ..models import Movie, Series, WatchlistItem, Genre
 from ..extensions import db
 
 main_bp = Blueprint("main", __name__)
@@ -15,8 +15,20 @@ def index():
 @main_bp.route("/movies")
 def movies():
     page = request.args.get('page', 1, type=int)
-    pagination = Movie.query.order_by(Movie.created_at.desc()).paginate(page=page, per_page=12, error_out=False)
-    return render_template("movies.html", movies=pagination.items, pagination=pagination)
+    genre_id = request.args.get('genre', type=int)
+    
+    query = Movie.query
+    selected_genre = None
+    
+    if genre_id:
+        selected_genre = Genre.query.get(genre_id)
+        if selected_genre:
+            query = query.filter(Movie.genres.any(id=genre_id))
+            
+    pagination = query.order_by(Movie.created_at.desc()).paginate(page=page, per_page=12, error_out=False)
+    all_genres = Genre.query.all()
+    
+    return render_template("movies.html", movies=pagination.items, pagination=pagination, genres=all_genres, selected_genre=selected_genre)
 
 @main_bp.route("/series")
 def series():
@@ -47,7 +59,6 @@ def series_detail(series_id):
     series = Series.query.get_or_404(series_id)
     in_watchlist = False
     if current_user.is_authenticated:
-        # هنا كنقلبو واش المسلسل كاين فالـ watchlist
         item = WatchlistItem.query.filter_by(user_id=current_user.id, series_id=series.id).first()
         in_watchlist = True if item else False
     return render_template("series_detail.html", series=series, in_watchlist=in_watchlist)
@@ -74,7 +85,6 @@ def toggle_watchlist(movie_id):
         flash(f'Added "{movie.title}" to your watchlist!', 'success')
     return redirect(request.referrer or url_for('main.index'))
 
-# ─── مسار جديد باش نزيدو مسلسل للـ Watchlist ───
 @main_bp.route("/watchlist/toggle_series/<int:series_id>", methods=['POST'])
 @login_required
 def toggle_series_watchlist(series_id):
@@ -90,4 +100,3 @@ def toggle_series_watchlist(series_id):
         db.session.commit()
         flash(f'Added "{series.name}" to your watchlist!', 'success')
     return redirect(request.referrer or url_for('main.index'))
-

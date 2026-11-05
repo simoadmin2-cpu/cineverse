@@ -3,11 +3,21 @@
 
 {% block content %}
 <div class="container" style="margin-top: 100px; min-height: 80vh;">
-    <h1 style="margin-bottom: 2rem;">All Movies</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <h1 style="margin: 0;">All Movies</h1>
+        
+        <!-- أزرار الفلترة -->
+        <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 5px;">
+            <a href="{{ url_for('main.movies') }}" class="btn {% if not selected_genre %}btn-primary{% else %}btn-secondary{% endif %}" style="padding: 0.5rem 1rem; font-size: 0.9rem;">All</a>
+            {% for genre in genres %}
+                <a href="{{ url_for('main.movies', genre=genre.id) }}" class="btn {% if selected_genre and selected_genre.id == genre.id %}btn-primary{% else %}btn-secondary{% endif %}" style="padding: 0.5rem 1rem; font-size: 0.9rem; white-space: nowrap;">{{ genre.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
     
     <div class="movie-row" style="flex-wrap: wrap; gap: 1.5rem; overflow: visible;">
         {% for movie in movies %}
-        <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="movie-card" style="min-width: 200px; width: 200px; height: 300px;">
+        <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="movie-card" style="min-width: 200px; width: 200px; height: 300px; text-decoration: none; color: inherit;">
             {% if movie.poster_path %}
             <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
             {% endif %}
@@ -19,20 +29,18 @@
             </div>
         </a>
         {% else %}
-        <p class="muted">No movies found.</p>
+        <p class="muted">No movies found for this genre.</p>
         {% endfor %}
     </div>
 
-    <!-- Pagination (تقسيم الصفحات) -->
+    <!-- Pagination -->
     <div class="pagination">
         {% if pagination.has_prev %}
-            <a href="{{ url_for('main.movies', page=pagination.prev_num) }}" class="page-btn">&laquo; Prev</a>
+            <a href="{{ url_for('main.movies', page=pagination.prev_num, genre=selected_genre.id if selected_genre else '') }}" class="page-btn">&laquo; Prev</a>
         {% endif %}
-        
         <span class="page-info">Page {{ pagination.page }} of {{ pagination.pages }}</span>
-        
         {% if pagination.has_next %}
-            <a href="{{ url_for('main.movies', page=pagination.next_num) }}" class="page-btn">Next &raquo;</a>
+            <a href="{{ url_for('main.movies', page=pagination.next_num, genre=selected_genre.id if selected_genre else '') }}" class="page-btn">Next &raquo;</a>
         {% endif %}
     </div>
 </div>
