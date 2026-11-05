@@ -8,42 +8,31 @@
         <p class="muted">Welcome back, {{ current_user.username }}!</p>
     </div>
 
-    <!-- Stats Cards -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon"><i class="fa-solid fa-film"></i></div>
-            <div class="stat-info">
-                <h3>Total Movies</h3>
-                <p>{{ movie_count }}</p>
-            </div>
+            <div class="stat-info"><h3>Total Movies</h3><p>{{ movie_count }}</p></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon" style="color: #8B5CF6;"><i class="fa-solid fa-tv"></i></div>
-            <div class="stat-info">
-                <h3>Total Series</h3>
-                <p>{{ series_count }}</p>
-            </div>
+            <div class="stat-info"><h3>Total Series</h3><p>{{ series_count }}</p></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon" style="color: #3498db;"><i class="fa-solid fa-users"></i></div>
-            <div class="stat-info">
-                <h3>Total Users</h3>
-                <p>{{ user_count }}</p>
-            </div>
+            <div class="stat-info"><h3>Total Users</h3><p>{{ user_count }}</p></div>
         </div>
     </div>
 
-    <!-- Quick Actions -->
     <h2 style="margin-top: 3rem; margin-bottom: 1.5rem;">Quick Actions</h2>
     <div class="actions-grid">
         <a href="{{ url_for('admin.add_movie') }}" class="action-btn">
             <i class="fa-solid fa-plus"></i> Add New Movie
         </a>
-        <a href="#" class="action-btn">
-            <i class="fa-solid fa-plus"></i> Add New Series
+        <a href="{{ url_for('admin.manage_movies') }}" class="action-btn">
+            <i class="fa-solid fa-list"></i> Manage Movies
         </a>
         <a href="#" class="action-btn">
-            <i class="fa-solid fa-list"></i> Manage Users
+            <i class="fa-solid fa-plus"></i> Add New Series
         </a>
     </div>
 </div>
