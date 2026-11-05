@@ -1,9 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Add Movie — Admin{% endblock %}
-
+{% block title %}{{ title }} — Admin{% endblock %}
 {% block content %}
 <div class="container form-container" style="max-width: 600px; margin-top: 100px;">
-    <h2>Add New Movie</h2>
+    <h2>{{ title }}</h2>
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         
@@ -30,17 +29,24 @@
 
         <div class="form-group">
             {{ form.poster_path.label }}
-            {{ form.poster_path(class="form-input", placeholder="https://...") }}
+            {{ form.poster_path(class="form-input", placeholder="e.g. /uVEFQvFMMsg4e6yb03xOfVsDz4o.jpg") }}
         </div>
 
         <div class="form-group">
             {{ form.backdrop_path.label }}
-            {{ form.backdrop_path(class="form-input", placeholder="https://...") }}
+            {{ form.backdrop_path(class="form-input", placeholder="e.g. /s3TBrRGB1iav7gFOCNx3H31MoES.jpg") }}
         </div>
 
         <div class="form-group">
             {{ form.trailer_url.label }}
             {{ form.trailer_url(class="form-input", placeholder="https://youtube.com/watch?v=...") }}
+        </div>
+
+        <!-- هنا فين زدنا الخانة الجديدة ديال الفيلم الكامل -->
+        <div class="form-group" style="background: rgba(229, 9, 20, 0.1); padding: 10px; border-radius: 6px; border: 1px dashed var(--accent);">
+            {{ form.video_url.label }}
+            {{ form.video_url(class="form-input", placeholder="https://... .mp4 (Legal MP4 links only)") }}
+            <small class="muted" style="font-size: 0.75rem; margin-top: 5px; display: block;">Only use Public Domain / Open Source MP4 links here.</small>
         </div>
 
         <div class="form-group" style="margin-top: 1.5rem;">
