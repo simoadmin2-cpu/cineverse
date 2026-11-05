@@ -12,7 +12,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 <body>
-  <!-- Header / Navbar -->
   <header class="site-header">
     <div class="container nav-inner">
       <div class="nav-left">
@@ -28,14 +27,16 @@
       </div>
       
       <div class="nav-right">
-        <!-- هنا فين درنا فورم البحث -->
         <form action="{{ url_for('main.search') }}" method="GET" class="search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" name="q" placeholder="Search..." value="{{ request.args.get('q', '') }}" />
         </form>
         
         {% if current_user.is_authenticated %}
-            <div class="user-avatar" title="{{ current_user.username }}">{{ current_user.username[0]|upper }}</div>
+            <!-- هنا درنا رابط لصفحة البروفايل -->
+            <a href="{{ url_for('auth.profile') }}" class="user-avatar" title="My Profile" style="text-decoration: none; color: white;">
+                {{ current_user.username[0]|upper }}
+            </a>
             <a href="{{ url_for('auth.logout') }}" class="btn-text">Logout</a>
         {% else %}
             <a href="{{ url_for('auth.login') }}" class="btn-text">Sign In</a>
@@ -45,22 +46,27 @@
       </div>
     </div>
   </header>
-<!-- Mobile Menu Overlay -->
-<div class="mobile-menu" id="mobileMenu">
-  <div class="mobile-menu-header">
-    <a href="{{ url_for('main.index') }}" class="logo">CineVerse</a>
-    <button class="close-menu-btn" id="closeMenu"><i class="fa-solid fa-xmark"></i></button>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <a href="{{ url_for('main.index') }}" class="logo">CineVerse</a>
+      <button class="close-menu-btn" id="closeMenu"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <nav class="mobile-nav-links">
+      <a href="{{ url_for('main.index') }}">Home</a>
+      <a href="{{ url_for('main.movies') }}">Movies</a>
+      <a href="{{ url_for('main.series') }}">Series</a>
+      <a href="{{ url_for('main.watchlist') }}">Watchlist</a>
+      {% if current_user.is_authenticated %}
+      <a href="{{ url_for('auth.profile') }}">My Profile</a>
+      {% endif %}
+    </nav>
+    <form action="{{ url_for('main.search') }}" method="GET" class="mobile-search-box">
+      <input type="text" name="q" placeholder="Search..." value="{{ request.args.get('q', '') }}" />
+    </form>
   </div>
-  <nav class="mobile-nav-links">
-    <a href="{{ url_for('main.index') }}">Home</a>
-    <a href="{{ url_for('main.movies') }}">Movies</a>
-    <a href="{{ url_for('main.series') }}">Series</a>
-    <a href="{{ url_for('main.watchlist') }}">Watchlist</a>
-  </nav>
-  <form action="{{ url_for('main.search') }}" method="GET" class="mobile-search-box">
-    <input type="text" name="q" placeholder="Search..." value="{{ request.args.get('q', '') }}" />
-  </form>
-</div>
+
   <!-- Flash Messages -->
   <div class="container" style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 100%; max-width: 600px; pointer-events: none;">
     {% with messages = get_flashed_messages(with_categories=true) %}
