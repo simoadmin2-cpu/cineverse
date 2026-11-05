@@ -80,33 +80,56 @@ def create_app(config_class=Config):
         db.session.commit()
         click.echo("✅ Genres added.")
 
-    # ─── الأمر الجديد ديال ربط الأنواع ───
     @app.cli.command("link-genres")
     def link_genres():
         from .services.tmdb import get_movie_details, get_tv_details
         from .models import Movie, Series, Genre
-        click.echo("⏳ Linking genres to movies and series...")
-        
-        # ربط الأفلام
-        for m in Movie.query.filter(Movie.genres == None).all():
+        click.echo("⏳ Linking genres...")
+        for m in Movie.query.all():
             if m.tmdb_id:
                 details = get_movie_details(m.tmdb_id)
                 if details and 'genres' in details:
                     for g_data in details['genres']:
                         genre = Genre.query.filter_by(tmdb_id=g_data['id']).first()
-                        if genre: m.genres.append(genre)
-        db.session.commit()
-        click.echo("✅ Movies linked.")
-
-        # ربط المسلسلات
-        for s in Series.query.filter(Series.genres == None).all():
+                        if genre and genre not in m.genres: m.genres.append(genre)
+        for s in Series.query.all():
             if s.tmdb_id:
                 details = get_tv_details(s.tmdb_id)
                 if details and 'genres' in details:
                     for g_data in details['genres']:
                         genre = Genre.query.filter_by(tmdb_id=g_data['id']).first()
-                        if genre: s.genres.append(genre)
+                        if genre and genre not in s.genres: s.genres.append(genre)
         db.session.commit()
-        click.echo("✅ Series linked.")
+        click.echo("✅ Genres linked.")
+
+    # ─── الأمر الجديد ديال الحلقات ───
+    @app.cli.command("seed-episodes")
+    def seed_episodes():
+        from .services.tmdb import get_season_episodes
+        from .models import Series, Season, Episode
+        from datetime import datetime
+        click.echo("⏳ Fetching episodes...")
+        
+        seasons = Season.query.all()
+        added_eps = 0
+        for season in seasons:
+            series = Series.query.get(season.series_id)
+            if series and series.tmdb_id:
+                details = get_season_episodes(series.tmdb_id, season.season_number)
+                if details and 'episodes' in details:
+                    for ep in details['episodes']:
+                        if not Episode.query.filter_by(season_id=season.id, episode_number=ep['episode_number']).first():
+                            air_date = None
+                            if ep.get('air_date'):
+                                try: air_date = datetime.strptime(ep['air_date'], '%Y-%m-%d').date()
+                                except: pass
+                            db.session.add(Episode(
+                                season_id=season.id, episode_number=ep['episode_number'],
+                                name=ep.get('name', ''), overview=ep.get('overview', ''),
+                                still_path=ep.get('still_path'), air_date=air_date, runtime=ep.get('runtime')
+                            ))
+                            added_eps += 1
+        db.session.commit()
+        click.echo(f"✅ Added {added_eps} episodes.")
 
     return app

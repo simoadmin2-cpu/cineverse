@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_required
-from ..models import Movie, Series, WatchlistItem, Genre
+from ..models import Movie, Series, WatchlistItem, Genre, Season
 from ..extensions import db
 
 main_bp = Blueprint("main", __name__)
@@ -54,6 +54,13 @@ def series_detail(series_id):
     in_watchlist = WatchlistItem.query.filter_by(user_id=current_user.id, series_id=series.id).first() is not None if current_user.is_authenticated else False
     return render_template("series_detail.html", series=series, in_watchlist=in_watchlist)
 
+# ─── مسار جديد ديال الموسم (باش نعرضو الحلقات) ───
+@main_bp.route("/series/<int:series_id>/season/<int:season_number>")
+def season_detail(series_id, season_number):
+    series = Series.query.get_or_404(series_id)
+    season = Season.query.filter_by(series_id=series.id, season_number=season_number).first_or_404()
+    return render_template("season_detail.html", series=series, season=season)
+
 @main_bp.route("/watchlist")
 @login_required
 def watchlist():
@@ -65,7 +72,7 @@ def toggle_watchlist(movie_id):
     movie = Movie.query.get_or_404(movie_id)
     item = WatchlistItem.query.filter_by(user_id=current_user.id, movie_id=movie.id).first()
     if item:
-        db.session.delete(item); flash(f'Removed "{movie.title}" from your watchlist.', 'info')
+        db.session.delete(item); flash(f'Removed "{movie.title}"!', 'info')
     else:
         db.session.add(WatchlistItem(user_id=current_user.id, movie_id=movie.id)); flash(f'Added "{movie.title}"!', 'success')
     db.session.commit()
@@ -77,7 +84,7 @@ def toggle_series_watchlist(series_id):
     series = Series.query.get_or_404(series_id)
     item = WatchlistItem.query.filter_by(user_id=current_user.id, series_id=series.id).first()
     if item:
-        db.session.delete(item); flash(f'Removed "{series.name}" from your watchlist.', 'info')
+        db.session.delete(item); flash(f'Removed "{series.name}"!', 'info')
     else:
         db.session.add(WatchlistItem(user_id=current_user.id, series_id=series.id)); flash(f'Added "{series.name}"!', 'success')
     db.session.commit()
